@@ -19,6 +19,11 @@ namespace Tetris
             	return _blocks.TryGetValue(p, out b) ? b : (Block?)null;
         	}
         }
+        
+        protected void ClearBlocks()
+        {
+        	_blocks.Clear();
+        }
 
         protected void AddBlock(Block b)
         {

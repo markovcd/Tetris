@@ -5,12 +5,6 @@ using System.Text;
 
 namespace Tetris
 {
-    public interface IRenderer
-    {
-    	BlockCollection Blocks { get; }
-    	void Render();
-    }
-
     public class ConsoleRenderer : IRenderer
     {
         private readonly BlockCollection _blocks;

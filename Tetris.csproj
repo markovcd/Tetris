@@ -50,14 +50,22 @@
     <Compile Include="Block.cs" />
     <Compile Include="BlockCollection.cs" />
     <Compile Include="Board.cs" />
-    <Compile Include="BlockRenderer.cs" />
-    <Compile Include="FormRenderer.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="PieceFactory.cs" />
+    <Compile Include="Renderers\ConsoleRenderer.cs" />
+    <Compile Include="Renderers\BitmapRenderer.cs" />
+    <Compile Include="Renderers\BoardBitmapRenderer.cs" />
+    <Compile Include="Renderers\IRenderer.cs" />
+    <Compile Include="Renderers\PieceBitmapRenderer.cs" />
+    <Compile Include="Score.cs" />
     <Compile Include="Size.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Renderers" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
