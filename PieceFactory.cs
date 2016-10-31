@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Tetris
 {
@@ -13,13 +15,13 @@ namespace Tetris
 		
 		public static Random Random { get; private set; }
 		
-		public readonly static Piece LPiece = new Piece(2, Point.Create(0.0, 1.0), 1, "101011");
-		public readonly static Piece JPiece = new Piece(2, Point.Create(1.0, 1.0), 2, "010111");
-		public readonly static Piece OPiece = new Piece(2, Point.Create(0.5, 0.5), 3, "1111");	
-		public readonly static Piece IPiece = new Piece(4, Point.Create(1.5, 0.5), 4, "1111");
-		public readonly static Piece TPiece = new Piece(3, Point.Create(1.0, 1.0), 5, "010111");
-		public readonly static Piece SPiece = new Piece(2, Point.Create(0.0, 1.0), 6, "101101");
-		public readonly static Piece ZPiece = new Piece(2, Point.Create(0.0, 1.0), 7, "011110");
+		public readonly static Piece LPiece = new Piece(2, new PointF(0.0f, 1.0f), Brushes.Gold, "101011");
+		public readonly static Piece JPiece = new Piece(2, new PointF(1.0f, 1.0f), Brushes.OrangeRed, "010111");
+		public readonly static Piece OPiece = new Piece(2, new PointF(0.5f, 0.5f), Brushes.Gray, "1111");	
+		public readonly static Piece IPiece = new Piece(4, new PointF(1.5f, 0.5f), Brushes.SandyBrown, "1111");
+		public readonly static Piece TPiece = new Piece(3, new PointF(1.0f, 1.0f), Brushes.Indigo, "010111");
+		public readonly static Piece SPiece = new Piece(2, new PointF(0.0f, 1.0f), Brushes.ForestGreen, "101101");
+		public readonly static Piece ZPiece = new Piece(2, new PointF(0.0f, 1.0f), Brushes.DodgerBlue, "011110");
 		
 		static PieceFactory()
 		{
@@ -37,7 +39,7 @@ namespace Tetris
 			return angles.ElementAt(Random.Next(0, 4));
 		}
 		
-		public static Piece GetRandomPiece(bool randomAngle = true, Point<int> offset = default(Point<int>))
+		public static Piece GetRandomPiece(bool randomAngle = true, Point offset = default(Point))
 		{
 			var p = Pieces.ElementAt(Random.Next(0, Pieces.Count()));
 			

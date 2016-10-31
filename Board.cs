@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 
 namespace Tetris
 {
@@ -12,10 +13,14 @@ namespace Tetris
 	public class Board : BlockCollection, IBoard
     {
   		private readonly Size _size;
-  		private readonly Point<int> _gravity; 
+  		private readonly Point _gravity; 
   		private Piece _currentPiece, _nextPiece;
 		
-  		public Point<int> StartingPosition { get; private set; }
+  		public event EventHandler LinesCleared;
+  		public event EventHandler PieceCreated;
+  		public event EventHandler GameEnd;
+  		
+  		public Point StartingPosition { get; private set; }
 
         public override Size Size { get { return _size; } }
   		
@@ -43,20 +48,26 @@ namespace Tetris
 		{
 			ClearPiece();
 			ClearBlocks();
-			_nextPiece = null;
+			_nextPiece = PieceFactory.GetRandomPiece();
 		}
 		
-		protected void NewPiece()
+		protected bool NewPiece()
 		{
-			if (_nextPiece != null) CurrentPiece = _nextPiece.Offset(StartingPosition);
+			var piece = _nextPiece.Offset(StartingPosition);
+			
+			if (IsCollision(piece)) return false;
+			
+			CurrentPiece = piece;
 			_nextPiece = PieceFactory.GetRandomPiece();
+			
+			return true;
 		}
 		
 		public bool MovePiece(int direction = 0)
 		{
 			if (CurrentPiece == null) return false;
 			
-			var p = direction == 0 ? _gravity : Point.Create(direction, 0);
+			var p = direction == 0 ? _gravity : new Point(direction, 0);
 			
 			if (IsCollision(p) || IsEdge(p)) return false;
 			CurrentPiece = CurrentPiece.Offset(p);
@@ -64,21 +75,29 @@ namespace Tetris
 		    return true;
 		}
 		
-		public void RotatePiece(int angle = 90)
+		public bool RotatePiece(int angle = 90)
         {
-        	if (CurrentPiece == null) return;
-        	if (IsCollision(angle: angle) || IsEdge(angle: angle)) return;
+        	if (CurrentPiece == null) return false;
+        	if (IsCollision(angle: angle) || IsEdge(angle: angle)) return false;
         	CurrentPiece = CurrentPiece.Rotate(angle);
+        	return true;
         }
 		
-		protected bool IsCollision(Point<int> offset = default(Point<int>), int angle = 0)
+		protected bool IsCollision(Piece piece)
+		{
+			if (CurrentPiece == null) return this.Intersect(piece).Any();
+			
+			return this.Except(CurrentPiece).Intersect(piece).Any();
+		}
+		
+		protected bool IsCollision(Point offset = default(Point), int angle = 0)
         {
 			if (offset.X == 0 && offset.Y == 0) offset = _gravity;
 			
-			return this.Except(CurrentPiece).Intersect(CurrentPiece.Offset(offset).Rotate(angle)).Any();
+			return IsCollision(CurrentPiece.Offset(offset).Rotate(angle));
         }
         
-        protected bool IsEdge(Point<int> p = default(Point<int>), int angle = 0)
+        protected bool IsEdge(Point p = default(Point), int angle = 0)
         {
         	if (p.X == 0 && p.Y == 0) p = _gravity;
         	
@@ -102,7 +121,7 @@ namespace Tetris
                 RemoveBlocks(currentRow);
                 var offsetBlocks = this.Where(b => b.Position.Y < rowIndex).ToList();
                 RemoveBlocks(offsetBlocks);
-                AddBlocks(offsetBlocks.Select(b => b.Offset(Point.Create(0, 1))));
+                AddBlocks(offsetBlocks.Select(b => b.Offset(new Point(0, 1))));
 
                 rows++;
             }
@@ -114,24 +133,45 @@ namespace Tetris
 
 		public void Tick()
         {
+		
 			if (CurrentPiece == null)
             {
-            	NewPiece();
+				if (NewPiece()) OnPieceCreated(new EventArgs());
+				else OnGameEnd(new EventArgs());
             }
             else if (!MovePiece())
             {
                 ClearPiece();
-                LastClearedRows = RemoveFullRows();
+                var cleared = RemoveFullRows();
+                if (cleared > 0) 
+                {
+                	LastClearedRows = cleared;
+                	OnLinesCleared(new EventArgs());
+                }
             }
         }
 		
 		public Board(Size size = default(Size))
         {
 			_size = size.Height + size.Width == 0 ? new Size(10, 22) : size;
-            StartingPosition = Point.Create(4, 1);
-            _gravity = Point.Create(0, 1);
-            NewPiece();
+            StartingPosition = new Point(4, 1);
+            _gravity = new Point(0, 1);
+            _nextPiece = PieceFactory.GetRandomPiece();
         }
         
+		protected virtual void OnLinesCleared(EventArgs e)
+		{
+			if (LinesCleared != null) LinesCleared.Invoke(this, e);
+		}
+		
+		protected virtual void OnPieceCreated(EventArgs e)
+		{
+			if (PieceCreated != null) PieceCreated.Invoke(this, e);
+		}
+		
+		protected virtual void OnGameEnd(EventArgs e)
+		{
+			if (GameEnd != null) GameEnd.Invoke(this, e);
+		}
     }
 }

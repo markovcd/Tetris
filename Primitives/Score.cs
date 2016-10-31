@@ -8,22 +8,46 @@ namespace Tetris
 		private readonly int[] _scoreMultiplier;
 		private int _totalLines, _level, _timerInterval, _value;
 		
-		public int Level { get { return _level; } }
+		public event EventHandler NewLevel;
+		
+		public int Level 
+		{ 
+			get { return _level; } 
+			private set 
+			{
+				if (_level == value) return;
+				
+				_level = value;
+				_timerInterval = _initialInterval - _level * _intervalDecreasePerLevel;
+				OnNewLevel(new EventArgs());
+			}
+		}
+		
+		public int TotalLines 
+		{ 
+			get { return _totalLines; } 
+			set
+			{
+				if (_totalLines == value) return;
+				
+				_totalLines = value;
+				Level = _totalLines / _linesPerLevel;
+			}
+		}
+		
 		public int LinesPerLevel { get { return _linesPerLevel; } }
         public int InitialInterval { get { return _initialInterval; } }
         public int IntervalDecreasePerLevel { get { return _intervalDecreasePerLevel; } }
 		public int TimerInterval { get { return _timerInterval; } }
 		public int Value { get { return _value; } }
-		
-		public int TotalLines { get { return _totalLines; } }
 
 		public void AddLines(int lines)
 		{
-		    _totalLines += lines;
-            _level = _totalLines / _linesPerLevel;
-            _timerInterval = _initialInterval - _level * _intervalDecreasePerLevel;
+		   TotalLines += lines;
+	
 		    if (lines == 0) return;
-            _value = (_level + 1) * _scoreMultiplier[lines - 1];
+		    
+            _value += (_level + 1) * _scoreMultiplier[lines - 1];
         }
 
 		public void Clear()
@@ -45,6 +69,11 @@ namespace Tetris
 		    _initialInterval = initialInteval;
             _intervalDecreasePerLevel = intervalDecreasePerLevel;
 			_scoreMultiplier = scoreMultiplier ?? DefaultScoreMultiplier();
+		}
+		
+		protected virtual void OnNewLevel(EventArgs e)
+		{
+			if (NewLevel != null) NewLevel.Invoke(this, e);
 		}
 		
 		public override string ToString()

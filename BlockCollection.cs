@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 
 namespace Tetris
 {
     public abstract class BlockCollection : IEnumerable<Block>
     {
-        private readonly Dictionary<Point<int>, Block> _blocks;
+        private readonly Dictionary<Point, Block> _blocks;
 
         public abstract Size Size { get; }
 		
-        public virtual Block? this[Point<int> p] 
+        public virtual Block? this[Point p] 
         {
         	get
         	{
@@ -36,7 +37,7 @@ namespace Tetris
             foreach (var b in blocks) AddBlock(b);
         }
 
-        protected bool RemoveBlock(Point<int> p)
+        protected bool RemoveBlock(Point p)
         {
             return _blocks.Remove(p);
         }
@@ -48,12 +49,12 @@ namespace Tetris
 
         protected BlockCollection()
         {
-            _blocks = new Dictionary<Point<int>, Block>();
+            _blocks = new Dictionary<Point, Block>();
         }
 
         protected BlockCollection(IEnumerable<Block> blocks)
         {
-            _blocks = new Dictionary<Point<int>, Block>(blocks.ToDictionary(b => b.Position));
+            _blocks = new Dictionary<Point, Block>(blocks.ToDictionary(b => b.Position));
         }
 
         public virtual IEnumerator<Block> GetEnumerator()

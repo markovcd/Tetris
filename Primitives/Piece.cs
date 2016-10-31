@@ -2,16 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 
 namespace Tetris
 {
-	/// <summary>
-	/// Description of Piece.
-	/// </summary>
 	public class Piece : BlockCollection, IEquatable<Piece>
 	{
-	    private readonly long _color;
-        private readonly Point<double> _pivot;
+	    private readonly Brush _brush;
+        private readonly PointF _pivot;
 
         public override Size Size
 	    {
@@ -23,17 +21,17 @@ namespace Tetris
             }
 	    }
 		
-		public long Color { get { return _color; } }
+		public Brush Brush { get { return _brush; } }
 		
-		public Point<double> Pivot { get { return _pivot; } }
+		public PointF Pivot { get { return _pivot; } }
 
-        public Piece(int width, Point<double> pivot, long color, string data) : this(pivot, color, Enumerable.Empty<Block>())
+        public Piece(int width, PointF pivot, Brush brush, string data) : this(pivot, brush, Enumerable.Empty<Block>())
 		{
 			int x = 0, y = 0;
 			
 			foreach (var c in data) 
 			{
-				if (c == '1') AddBlock(new Block(color, Point.Create(x, y)));
+				if (c == '1') AddBlock(new Block(brush, new Point(x, y)));
 				
 				x++;
 
@@ -44,27 +42,26 @@ namespace Tetris
 			}
 		}
 
-		private Piece(Point<double> pivot, long color, IEnumerable<Block> blocks) : base(blocks)
+		private Piece(PointF pivot, Brush brush, IEnumerable<Block> blocks) : base(blocks)
 		{
 			_pivot = pivot;
-			_color = color;
+			_brush = brush;
 		}
 		
 		public Piece Rotate(int angle = 90)
 		{
-            return new Piece(Pivot, Color, this.Select(b => b.Rotate(Pivot, angle)));
+            return new Piece(Pivot, Brush, this.Select(b => b.Rotate(Pivot, angle)));
 		}
 
-	    public Piece Offset(Point<int> p)
+	    public Piece Offset(Point p)
 	    {
-	        var blocks = new HashSet<Block>(this.Select(b => b.Offset(p)));
-	        var p2 = Point.Create(Convert.ToDouble(p.X), Convert.ToDouble(p.Y));
-	        return new Piece(Pivot.Offset(p2), Color, blocks);
+	    	var blocks = new HashSet<Block>(this.Select(b => b.Offset(p)));
+	        return new Piece(Pivot.Add(p) , Brush, blocks);
 	    }
 
 	    public Piece Clone()
 		{
-			return new Piece(Pivot, Color, this);
+			return new Piece(Pivot, Brush, this);
 		}
 		
 	    public override int GetHashCode()
