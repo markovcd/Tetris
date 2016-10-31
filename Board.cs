@@ -9,6 +9,14 @@ namespace Tetris
 	{
 		void Tick();
 	}
+
+    public class LinesEventArgs : EventArgs
+    {
+        private readonly int _lines;
+        public int Lines { get { return _lines; } }
+
+        public LinesEventArgs(int lines) { _lines = lines; }
+    }
 	
 	public class Board : BlockCollection, IBoard
     {
@@ -16,7 +24,7 @@ namespace Tetris
   		private readonly Point _gravity; 
   		private Piece _currentPiece, _nextPiece;
 		
-  		public event EventHandler LinesCleared;
+  		public event EventHandler<LinesEventArgs> LinesCleared;
   		public event EventHandler PieceCreated;
   		public event EventHandler GameEnd;
   		
@@ -24,8 +32,6 @@ namespace Tetris
 
         public override Size Size { get { return _size; } }
   		
-        public int LastClearedRows { get; set; }
-        
 		public Piece CurrentPiece 
 		{ 
 			get { return _currentPiece; }
@@ -143,23 +149,19 @@ namespace Tetris
             {
                 ClearPiece();
                 var cleared = RemoveFullRows();
-                if (cleared > 0) 
-                {
-                	LastClearedRows = cleared;
-                	OnLinesCleared(new EventArgs());
-                }
+                if (cleared > 0) OnLinesCleared(new LinesEventArgs(cleared));
             }
         }
 		
 		public Board(Size size = default(Size))
         {
-			_size = size.Height + size.Width == 0 ? new Size(10, 22) : size;
+			_size = size == default(Size) ? new Size(10, 22) : size;
             StartingPosition = new Point(4, 1);
             _gravity = new Point(0, 1);
             _nextPiece = PieceFactory.GetRandomPiece();
         }
         
-		protected virtual void OnLinesCleared(EventArgs e)
+		protected virtual void OnLinesCleared(LinesEventArgs e)
 		{
 			if (LinesCleared != null) LinesCleared.Invoke(this, e);
 		}

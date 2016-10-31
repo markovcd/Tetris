@@ -35,7 +35,7 @@ namespace Tetris
 		
 		public static int RandomAngle()
 		{
-			int[] angles = { 0, 90, 180, 360 };
+			int[] angles = { 0, 90, 180, 270 };
 			return angles.ElementAt(Random.Next(0, 4));
 		}
 		

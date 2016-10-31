@@ -4,13 +4,12 @@
     <ProjectGuid>{110655CB-88AB-49A6-8375-C88CA5750F2B}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <OutputType>Library</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Tetris</RootNamespace>
     <AssemblyName>Tetris</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -30,6 +29,9 @@
     <Optimize>True</Optimize>
     <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
     <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -59,6 +61,7 @@
     <Compile Include="Primitives\Block.cs" />
     <Compile Include="Primitives\Piece.cs" />
     <Compile Include="Primitives\Score.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Renderers\Renderer.cs" />
     <Compile Include="Renderers\BoardRenderer.cs" />
     <Compile Include="Renderers\GameRenderer.cs" />

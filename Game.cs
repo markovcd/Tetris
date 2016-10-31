@@ -6,7 +6,7 @@ namespace Tetris
 {
 	public enum Direction { Left = -1, Right = 1}
 	
-	public class Game : Form
+	public sealed class Game : Form
 	{
 		private readonly Board _board;
 	    private readonly GameRenderer _renderer;
@@ -20,9 +20,9 @@ namespace Tetris
 			_timer = new Timer();
 			_board = new Board();
 			_score = new Score();
-			
-			_board.LinesCleared += delegate { Score.AddLines(_board.LastClearedRows); };
-			_board.GameEnd += delegate { New(); };
+
+            _board.LinesCleared += delegate(object sender, LinesEventArgs args) { Score.AddLines(args.Lines); };
+            _board.GameEnd += delegate { New(); };
 			_score.NewLevel += delegate { _timer.Interval = _score.TimerInterval; };
 			
 			_renderer = new GameRenderer(_board);
@@ -33,7 +33,7 @@ namespace Tetris
             _timer.Interval = _score.InitialInterval;
             _timer.Enabled = true;
             
-            ClientSize = new System.Drawing.Size(_renderer.Size.Width, _renderer.Size.Height);
+            ClientSize = new Size(_renderer.Size.Width, _renderer.Size.Height);
             DoubleBuffered = true;
 			KeyPreview = true;
 			MaximizeBox = false;
@@ -49,8 +49,6 @@ namespace Tetris
 		
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			base.OnPaint(e);
-			
 			_renderer.Graphics = e.Graphics;
 			_renderer.Render();     
 		}

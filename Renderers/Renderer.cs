@@ -82,7 +82,7 @@ namespace Tetris
             
             Graphics.TranslateTransform(min.X - center.X, min.Y - center.Y);
             
-            if (Border) Graphics.DrawRectangle(Pens.Black, 0, 0, Size.Width, Size.Height);
+            if (Border) Graphics.DrawRectangle(Pens.Black, 0, 0, Size.Width - 1, Size.Height - 1);
             
             Graphics.TranslateTransform(-Position.X , -Position.Y);
         }
