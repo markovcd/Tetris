@@ -51,24 +51,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlockCollection.cs" />
-    <Compile Include="Board.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Factories\BlockFactory.cs" />
+    <Compile Include="Factories\GameFactory.cs" />
+    <Compile Include="Factories\PieceFactory.cs" />
     <Compile Include="Game.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PieceFactory.cs" />
     <Compile Include="Primitives\Block.cs" />
+    <Compile Include="Primitives\Blocks.cs" />
+    <Compile Include="Primitives\Board.cs" />
     <Compile Include="Primitives\Piece.cs" />
     <Compile Include="Primitives\Score.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Renderers\GraphicsRenderer.cs" />
     <Compile Include="Renderers\BoardRenderer.cs" />
     <Compile Include="Renderers\GameRenderer.cs" />
-    <Compile Include="Renderers\IRenderer.cs" />
     <Compile Include="Renderers\PieceRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Factories" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -12,7 +12,7 @@ namespace Tetris
         IBlock Offset(Point p);
     }
 
-    public struct Block : IBlock
+    public class Block : IBlock
     {
         private readonly Brush _brush;
         private readonly Point _position;
@@ -20,7 +20,7 @@ namespace Tetris
         public Brush Brush { get { return _brush; } }
         public Point Position { get { return _position; } }
 
-        public Block(Brush brush, Point position) : this()
+        public Block(Brush brush, Point position) 
         {
             _brush = brush;
             _position = position;
@@ -31,7 +31,7 @@ namespace Tetris
             return new Block(Brush, Position.Add(p));
         }
  
-        public IBlock Rotate(PointF pivot, int angle = 90)
+        public IBlock Rotate(PointF pivot, int angle)
         {
             var rad = angle * Math.PI / 180;
 

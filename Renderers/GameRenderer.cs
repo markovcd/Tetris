@@ -3,6 +3,11 @@ using System.Drawing;
 
 namespace Tetris
 {
+	public interface IGameRenderer : IBoardRenderer
+    {
+        IScore Score { get; set; }
+    }
+	
 	public class GameRenderer : BoardRenderer, IGameRenderer
     {
 		private readonly IPieceRenderer _pieceRenderer;
@@ -44,6 +49,9 @@ namespace Tetris
 				_pieceRenderer.Border = value;				
 			}
 		}
+		
+		public Font Font { get; set; }
+		public Brush FontBrush { get; set; }
 
 	    public override Brush Background
 	    {
@@ -80,10 +88,11 @@ namespace Tetris
 			}
 		}
 		
-		public GameRenderer(IBoard board, int blockSize = 20) : base(board, blockSize) 
+		public GameRenderer(IBoard board, IScore score, int blockSize) : base(board, blockSize) 
 		{
 			_pieceRenderer = new PieceRenderer(board.NextPiece, blockSize);
 			Position = default(Point);
+			Score = score;
 		}
 		
 		public override void Render()
@@ -92,9 +101,9 @@ namespace Tetris
 			base.Render();
 			_pieceRenderer.Render();
 			
-			if (Score == null) return;
+			if (Score == null || Font == null || FontBrush == null)  return;
 			
-			Graphics.DrawString(Score.ToString(), SystemFonts.CaptionFont, Brushes.Black, ScorePosition.X, ScorePosition.Y);
+			Graphics.DrawString(Score.ToString(), Font, FontBrush, ScorePosition.X, ScorePosition.Y);
 		}
 
 	}

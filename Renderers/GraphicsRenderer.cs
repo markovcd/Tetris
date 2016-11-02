@@ -4,13 +4,29 @@ using System.Linq;
 
 namespace Tetris
 {
-    public class GraphicsRenderer : IGraphicsRenderer
+    public interface IRenderer
     {
-        private IBlockCollection _blocks;
+    	IBlocks Blocks { get; }
+    	void Render();
+    }
+	
+	public interface IGraphicsRenderer : IRenderer
+    {
+        Graphics Graphics { get; set; }
+        Brush Background { get; set; }
+        Pen Border { get; set; }
+        Point Position { get; set; }
+        Size Size { get; }
+        int BlockSize { get; set; }
+    }
+	
+	public class GraphicsRenderer : IGraphicsRenderer
+    {
+        private IBlocks _blocks;
 
         private int _blockSize;
 
-        public virtual IBlockCollection Blocks 
+        public virtual IBlocks Blocks 
     	{
     		get { return _blocks; } 
     		set { _blocks = value; }
@@ -52,11 +68,29 @@ namespace Tetris
 
         public virtual Point Position { get; set; }
 
-        public GraphicsRenderer(IBlockCollection blocks, int blockSize = 20)
+        public GraphicsRenderer(IBlocks blocks, int blockSize)
         {
 
         	_blocks = blocks;
         	BlockSize = blockSize;
+        }
+        
+        protected virtual void RenderBlocks()
+        {
+        	foreach (var b in Blocks)
+            {
+                Graphics.FillRectangle(b.Brush, b.Position.X * BlockSize, b.Position.Y * BlockSize, BlockSize, BlockSize);
+            }
+        }
+        
+        protected virtual void RenderBackground()
+        {
+        	if (Background != null) Graphics.FillRectangle(Background, 0, 0, Size.Width, Size.Height);
+        }
+        
+        protected virtual void RenderBorder()
+        {
+        	if (Border != null) Graphics.DrawRectangle(Border, 0, 0, Size.Width - 1, Size.Height - 1);
         }
         
     	public virtual void Render()
@@ -65,20 +99,13 @@ namespace Tetris
     		var center = CenterPoint();
     		
     		Graphics.TranslateTransform(Position.X, Position.Y);
-    		
-    		if (_blocks == null) return;
-
-            if (Background != null) Graphics.FillRectangle(Background, 0, 0, Size.Width, Size.Height);
+            RenderBackground();
+            
 			Graphics.TranslateTransform(-min.X + center.X, -min.Y + center.Y);
+			RenderBlocks();
             
-            foreach (var b in Blocks)
-            {
-                Graphics.FillRectangle(b.Brush, b.Position.X * BlockSize, b.Position.Y * BlockSize, BlockSize, BlockSize);
-            }
-            
-            Graphics.TranslateTransform(min.X - center.X, min.Y - center.Y);
-            
-            if (Border != null) Graphics.DrawRectangle(Border, 0, 0, Size.Width - 1, Size.Height - 1);
+            Graphics.TranslateTransform(min.X - center.X, min.Y - center.Y);       
+            RenderBorder();
             
             Graphics.TranslateTransform(-Position.X , -Position.Y);
         }

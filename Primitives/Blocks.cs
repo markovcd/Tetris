@@ -6,26 +6,35 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public interface IBlockCollection : IEnumerable<IBlock>
+    public interface IBlocks : IEnumerable<IBlock>
     {
         Size Size { get; }
+        Point Position { get; }
     }
 
-    public abstract class BlockCollection : IBlockCollection
+    public abstract class Blocks : IBlocks
     {
-        private readonly Dictionary<Point, IBlock> _blocks;
+        private readonly IDictionary<Point, IBlock> _blocks;
 
-        public abstract Size Size { get; }
-		
-        public virtual IBlock this[Point p] 
+        public virtual Size Size
+	    {
+	        get
+	        {
+	            var position = Position;
+                var width = this.Max(b => b.Position.X) - position.X + 1;
+                var height = this.Max(b => b.Position.Y) - position.Y + 1;
+                return new Size(width, height);
+            }
+	    }
+
+        public virtual Point Position
         {
-        	get
-        	{
-        		IBlock b;
-            	return _blocks.TryGetValue(p, out b) ? b : null;
-        	}
+            get
+            {
+                return new Point(this.Min(b => b.Position.X), this.Min(b => b.Position.Y));
+            }
         }
-        
+
         protected void ClearBlocks()
         {
         	_blocks.Clear();
@@ -52,12 +61,12 @@ namespace Tetris
         	foreach (var b in blocks) RemoveBlock(b.Position);
         }
 
-        protected BlockCollection()
+        protected Blocks()
         {
             _blocks = new Dictionary<Point, IBlock>();
         }
 
-        protected BlockCollection(IEnumerable<IBlock> blocks)
+        protected Blocks(IEnumerable<IBlock> blocks)
         {
             _blocks = new Dictionary<Point, IBlock>(blocks.ToDictionary(b => b.Position));
         }

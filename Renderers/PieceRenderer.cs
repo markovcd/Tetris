@@ -4,9 +4,16 @@ using System.Drawing;
 
 namespace Tetris
 {
+	public interface IPieceRenderer : IGraphicsRenderer
+    {
+        IPiece Piece { get; set; }
+    }
+	
 	public class PieceRenderer : GraphicsRenderer, IPieceRenderer
     {
-        public IPiece Piece
+        private const int RendererSize = 4;
+		
+		public IPiece Piece
         {
             get { return (IPiece)Blocks; }
             set { Blocks = value; }
@@ -14,9 +21,9 @@ namespace Tetris
         
 		public override Size Size 
 		{
-        	get { return new Size(BlockSize * 4, BlockSize * 4); }
+        	get { return new Size(BlockSize * RendererSize, BlockSize * RendererSize); }
 		}
 
-        public PieceRenderer(IPiece piece, int blockSize = 20) : base(piece, blockSize) { }
+        public PieceRenderer(IPiece piece, int blockSize) : base(piece, blockSize) { }
     }
 }

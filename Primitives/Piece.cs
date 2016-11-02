@@ -6,64 +6,28 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public interface IPiece : IBlockCollection, IBlock
+    public interface IPiece : IBlocks, IBlock
     {
         new IPiece Offset(Point p);
         IPiece Rotate(int angle);
     }
 
-    public class Piece : BlockCollection, IPiece, IEquatable<IPiece>
+    public class Piece : Blocks, IPiece, IEquatable<IPiece>
 	{
 	    private readonly Brush _brush;
         private readonly PointF _pivot;
 
-        public override Size Size
-	    {
-	        get
-	        {
-	            var position = Position;
-                var width = this.Max(b => b.Position.X) - position.X + 1;
-                var height = this.Max(b => b.Position.Y) - position.Y + 1;
-                return new Size(width, height);
-            }
-	    }
-
-        public Point Position
-        {
-            get
-            {
-                return new Point(this.Min(b => b.Position.X), this.Min(b => b.Position.Y));
-            }
-        }
-		
 		public Brush Brush { get { return _brush; } }
 		
 		public PointF Pivot { get { return _pivot; } }
 
-        public Piece(int width, PointF pivot, Brush brush, string data) : this(pivot, brush, Enumerable.Empty<IBlock>())
-		{
-			int x = 0, y = 0;
-			
-			foreach (var c in data) 
-			{
-				if (c == '1') AddBlock(new Block(brush, new Point(x, y)));
-				
-				x++;
-
-			    if (x < width) continue;
-
-			    x = 0;
-			    y++;
-			}
-		}
-
-		private Piece(PointF pivot, Brush brush, IEnumerable<IBlock> blocks) : base(blocks)
+		public Piece(PointF pivot, Brush brush, IEnumerable<IBlock> blocks) : base(blocks)
 		{
 			_pivot = pivot;
 			_brush = brush;
 		}
 		
-		public IPiece Rotate(int angle = 90)
+		public IPiece Rotate(int angle)
 		{
             return new Piece(Pivot, Brush, this.Select(b => b.Rotate(Pivot, angle)));
 		}
@@ -80,8 +44,7 @@ namespace Tetris
 
         public IPiece Offset(Point p)
 	    {
-	    	var blocks = new HashSet<IBlock>(this.Select(b => b.Offset(p)));
-	        return new Piece(Pivot.Add(p) , Brush, blocks);
+	        return new Piece(Pivot.Add(p) , Brush, this.Select(b => b.Offset(p)));
 	    }
 
 	    public IPiece Clone()

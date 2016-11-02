@@ -63,23 +63,21 @@ namespace Tetris
 
 		public void Clear()
 		{
-		    _totalLines = 0;
-		    _level = 0;
-		    _timerInterval = _initialInterval;
+            TotalLines = 0;
 		    _value = 0;
 		}
 		
 		public static int[] DefaultScoreMultiplier()
 		{
-			return new int[] { 40, 100, 300, 1200 };
+			return new [] { 40, 100, 300, 1200 };
 		}
 		
-		public Score(int linesPerLevel = 10, int initialInteval = 1000, int intervalDecreasePerLevel = 100, int[] scoreMultiplier = null)
+		public Score(int linesPerLevel, int initialInteval, int intervalDecreasePerLevel, int[] scoreMultiplier)
 		{
 			_linesPerLevel = linesPerLevel;
 		    _initialInterval = initialInteval;
             _intervalDecreasePerLevel = intervalDecreasePerLevel;
-			_scoreMultiplier = scoreMultiplier ?? DefaultScoreMultiplier();
+			_scoreMultiplier = scoreMultiplier; 
 		}
 		
 		protected virtual void OnNewLevel(EventArgs e)

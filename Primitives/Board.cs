@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace Tetris
 {
-	public interface IBoard : IBlockCollection
+	public interface IBoard : IBlocks
     {
         event EventHandler<LinesEventArgs> LinesCleared;
         event EventHandler PieceCreated;
@@ -26,7 +26,7 @@ namespace Tetris
         public LinesEventArgs(int lines) { _lines = lines; }
     }
 	
-	public class Board : BlockCollection, IBoard
+	public class Board : Blocks, IBoard
 	{
 	    private readonly AbstractPieceFactory _factory;
         private readonly Size _size;
@@ -63,7 +63,7 @@ namespace Tetris
 		{
 			ClearPiece();
 			ClearBlocks();
-			_nextPiece = _factory.GetRandomPiece();
+			_nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
 		}
 		
 		protected bool NewPiece()
@@ -73,27 +73,27 @@ namespace Tetris
 			if (IsCollision(piece)) return false;
 			
 			CurrentPiece = piece;
-			_nextPiece = _factory.GetRandomPiece();
+			_nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
 			
 			return true;
 		}
 		
-		public bool MovePiece(int direction = 0)
+		public bool MovePiece(int direction)
 		{
 			if (CurrentPiece == null) return false;
 			
 			var p = direction == 0 ? _gravity : new Point(direction, 0);
 			
-			if (IsCollision(p) || IsEdge(p)) return false;
+			if (IsCollision(p, angle:0) || IsEdge(p, angle:0)) return false;
 			CurrentPiece = CurrentPiece.Offset(p);
 
 		    return true;
 		}
 		
-		public bool RotatePiece(int angle = 90)
+		public bool RotatePiece(int angle)
         {
         	if (CurrentPiece == null) return false;
-        	if (IsCollision(angle: angle) || IsEdge(angle: angle)) return false;
+        	if (IsCollision(Point.Empty, angle) || IsEdge(Point.Empty, angle)) return false;
         	CurrentPiece = CurrentPiece.Rotate(angle);
         	return true;
         }
@@ -105,14 +105,14 @@ namespace Tetris
 			return this.Except(CurrentPiece).Intersect(piece).Any();
 		}
 		
-		protected bool IsCollision(Point offset = default(Point), int angle = 0)
+		protected bool IsCollision(Point offset, int angle)
         {
 			if (offset.X == 0 && offset.Y == 0) offset = _gravity;
 			
 			return IsCollision(CurrentPiece.Offset(offset).Rotate(angle));
         }
         
-        protected bool IsEdge(Point p = default(Point), int angle = 0)
+        protected bool IsEdge(Point p, int angle)
         {
         	if (p.X == 0 && p.Y == 0) p = _gravity;
         	
@@ -126,7 +126,7 @@ namespace Tetris
             return row.Count.Equals(Size.Width);
 	    }
         
-        protected int RemoveFullRows(int rowIndex = 0)
+        protected int RemoveFullRows(int rowIndex)
         {
             var rows = 0;
             IList<IBlock> currentRow;
@@ -154,27 +154,23 @@ namespace Tetris
 				if (NewPiece()) OnPieceCreated(new EventArgs());
 				else OnGameEnd(new EventArgs());
             }
-            else if (!MovePiece())
+			else if (!MovePiece(direction:0))
             {
                 ClearPiece();
-                var cleared = RemoveFullRows();
+                var cleared = RemoveFullRows(rowIndex:0);
                 if (cleared > 0) OnLinesCleared(new LinesEventArgs(cleared));
             }
         }
 		
-		public Board(Size size = default(Size)) : this(new PieceFactory())
+		public Board(AbstractPieceFactory factory, Size size, Point startingPosition)
         {
-			_size = size == default(Size) ? new Size(10, 22) : size;
-            StartingPosition = new Point(4, 1);
+			_factory = factory;
+			_size = size; 
+            StartingPosition = startingPosition;
             _gravity = new Point(0, 1);
-            _nextPiece = _factory.GetRandomPiece();
+            _nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
         }
-
-	    public Board(AbstractPieceFactory factory)
-	    {
-	        _factory = factory;
-	    }
-        
+		
 		protected virtual void OnLinesCleared(LinesEventArgs e)
 		{
 			if (LinesCleared != null) LinesCleared.Invoke(this, e);

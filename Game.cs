@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace Tetris
 {
@@ -14,44 +15,45 @@ namespace Tetris
         private readonly IScore _score;
         private readonly Timer _timer;
         
+        private readonly IDictionary<Keys, Action> _keyBindings;
+        
         public IScore Score { get { return _score; } }
  
-		public Game()  
+		public Game(IGameRenderer renderer)  
 		{
+			_renderer = renderer;
 			_timer = new Timer();
-			_board = new Board();
-			_score = new Score();
+			_board = renderer.Board;
+			_score = renderer.Score;
 
-            _board.LinesCleared += delegate(object sender, LinesEventArgs args) { Score.AddLines(args.Lines); };
+            _board.LinesCleared += delegate(object sender, LinesEventArgs args) { _score.AddLines(args.Lines); };
             _board.GameEnd += delegate { New(); };
 			_score.NewLevel += delegate { _timer.Interval = _score.TimerInterval; };
 			
-			_renderer = new GameRenderer(_board);
-			_renderer.Border = new Pen(new LinearGradientBrush(new Point(_renderer.Size), new Point(0, 0), Color.DarkGray, Color.FloralWhite));
-            _renderer.Score = _score;
-		    _renderer.Background = new LinearGradientBrush(new Point(0,0), new Point(_renderer.Size), Color.DarkGray, Color.FloralWhite );
-			
-            _timer.Tick += new EventHandler(_timer_Tick);
+			_timer.Tick += delegate { DropPiece(); Invalidate(); };
             _timer.Interval = _score.InitialInterval;
             _timer.Enabled = true;
             
-            ClientSize = new Size(_renderer.Size.Width, _renderer.Size.Height);
+            _keyBindings = CreateKeyBindings();
+            
+            ClientSize = _renderer.Size;
             DoubleBuffered = true;
 			KeyPreview = true;
 			MaximizeBox = false;
 			FormBorderStyle = FormBorderStyle.FixedSingle;
 			Text = "Tetris";
 		}
-
-	    public Game(IGameRenderer renderer)
-	    {
-	        _renderer = renderer;
-	    }
-
-		void _timer_Tick(object sender, EventArgs e)
+		
+		private IDictionary<Keys, Action> CreateKeyBindings()
 		{
-			DropPiece();
-			Invalidate();
+			var d = new Dictionary<Keys, Action>();
+			
+            d.Add(Keys.A, () => MovePiece(Direction.Left));
+            d.Add(Keys.D, () => MovePiece(Direction.Right));
+            d.Add(Keys.W, () => RotatePiece(Direction.Right));
+            d.Add(Keys.S, DropPiece);
+            
+            return d;
 		}
 		
 		protected override void OnPaint(PaintEventArgs e)
@@ -62,12 +64,8 @@ namespace Tetris
 		
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			base.OnKeyDown(e);
-			
-			if (e.KeyCode == Keys.A) MovePiece(Direction.Left);
-			if (e.KeyCode == Keys.D) MovePiece(Direction.Right);
-			if (e.KeyCode == Keys.W) RotatePiece(Direction.Left);
-			if (e.KeyCode == Keys.S) DropPiece();
+			Action action;
+			if (_keyBindings.TryGetValue(e.KeyCode, out action)) action();
 			
 			Invalidate();
 		}
