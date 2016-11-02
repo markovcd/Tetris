@@ -30,7 +30,17 @@ namespace Tetris
 		{
 			return p.X >= 0 && p.X < s.Width && p.Y >= 0 && p.Y < s.Height;
 		}
-	}
+
+        public static Point Rotate(this Point p, PointF pivot, int angle)
+        {
+            var rad = angle * Math.PI / 180;
+
+            var x = Math.Cos(rad) * (p.X - pivot.X) - Math.Sin(rad) * (p.Y - pivot.Y) + pivot.X;
+            var y = Math.Sin(rad) * (p.X - pivot.X) + Math.Cos(rad) * (p.Y - pivot.Y) + pivot.Y;
+
+            return new Point(Convert.ToInt32(x), Convert.ToInt32(y));
+        }
+    }
 	
 	public static class SizeExtensions
 	{

@@ -33,12 +33,7 @@ namespace Tetris
  
         public IBlock Rotate(PointF pivot, int angle)
         {
-            var rad = angle * Math.PI / 180;
-
-            var x = Math.Cos(rad) * (Position.X - pivot.X) - Math.Sin(rad) * (Position.Y - pivot.Y) + pivot.X;
-            var y = Math.Sin(rad) * (Position.X - pivot.X) + Math.Cos(rad) * (Position.Y - pivot.Y) + pivot.Y;
-
-            return new Block(Brush, new Point(Convert.ToInt32(x), Convert.ToInt32(y)));
+            return new Block(Brush, Position.Rotate(pivot, angle));
         }
 
         public bool Equals(IBlock b)
