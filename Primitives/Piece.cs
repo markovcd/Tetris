@@ -6,7 +6,13 @@ using System.Drawing;
 
 namespace Tetris
 {
-	public class Piece : BlockCollection, IEquatable<Piece>
+    public interface IPiece : IBlockCollection, IBlock
+    {
+        new IPiece Offset(Point p);
+        IPiece Rotate(int angle);
+    }
+
+    public class Piece : BlockCollection, IPiece, IEquatable<IPiece>
 	{
 	    private readonly Brush _brush;
         private readonly PointF _pivot;
@@ -15,17 +21,26 @@ namespace Tetris
 	    {
 	        get
 	        {
-	            var width = this.Max(b => b.Position.X) - this.Min(b => b.Position.X) + 1;
-                var height = this.Max(b => b.Position.Y) - this.Min(b => b.Position.Y) + 1;
+	            var position = Position;
+                var width = this.Max(b => b.Position.X) - position.X + 1;
+                var height = this.Max(b => b.Position.Y) - position.Y + 1;
                 return new Size(width, height);
             }
 	    }
+
+        public Point Position
+        {
+            get
+            {
+                return new Point(this.Min(b => b.Position.X), this.Min(b => b.Position.Y));
+            }
+        }
 		
 		public Brush Brush { get { return _brush; } }
 		
 		public PointF Pivot { get { return _pivot; } }
 
-        public Piece(int width, PointF pivot, Brush brush, string data) : this(pivot, brush, Enumerable.Empty<Block>())
+        public Piece(int width, PointF pivot, Brush brush, string data) : this(pivot, brush, Enumerable.Empty<IBlock>())
 		{
 			int x = 0, y = 0;
 			
@@ -42,24 +57,34 @@ namespace Tetris
 			}
 		}
 
-		private Piece(PointF pivot, Brush brush, IEnumerable<Block> blocks) : base(blocks)
+		private Piece(PointF pivot, Brush brush, IEnumerable<IBlock> blocks) : base(blocks)
 		{
 			_pivot = pivot;
 			_brush = brush;
 		}
 		
-		public Piece Rotate(int angle = 90)
+		public IPiece Rotate(int angle = 90)
 		{
             return new Piece(Pivot, Brush, this.Select(b => b.Rotate(Pivot, angle)));
 		}
 
-	    public Piece Offset(Point p)
+        public IBlock Rotate(PointF pivot, int angle)
+        {
+            return new Piece(pivot, Brush, this.Select(b => b.Rotate(pivot, angle)));
+        }
+
+        IBlock IBlock.Offset(Point p)
+        {
+            return Offset(p);
+        }
+
+        public IPiece Offset(Point p)
 	    {
-	    	var blocks = new HashSet<Block>(this.Select(b => b.Offset(p)));
+	    	var blocks = new HashSet<IBlock>(this.Select(b => b.Offset(p)));
 	        return new Piece(Pivot.Add(p) , Brush, blocks);
 	    }
 
-	    public Piece Clone()
+	    public IPiece Clone()
 		{
 			return new Piece(Pivot, Brush, this);
 		}
@@ -72,14 +97,14 @@ namespace Tetris
 	        }
 	    }
 
-	    public bool Equals(Piece other)
+	    public bool Equals(IPiece other)
 	    {
 	        return GetHashCode().Equals(other.GetHashCode());
 	    }
 
 	    public override bool Equals(object obj)
 	    {
-	        return Equals((Piece)obj);
+	        return Equals((IPiece)obj);
 	    }
 	}
 	

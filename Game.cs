@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace Tetris
@@ -8,14 +9,14 @@ namespace Tetris
 	
 	public sealed class Game : Form
 	{
-		private readonly Board _board;
-	    private readonly GameRenderer _renderer;
-        private readonly Score _score;
+		private readonly IBoard _board;
+	    private readonly IGameRenderer _renderer;
+        private readonly IScore _score;
         private readonly Timer _timer;
         
-        public Score Score { get { return _score; } }
+        public IScore Score { get { return _score; } }
  
-		public Game()
+		public Game()  
 		{
 			_timer = new Timer();
 			_board = new Board();
@@ -26,8 +27,9 @@ namespace Tetris
 			_score.NewLevel += delegate { _timer.Interval = _score.TimerInterval; };
 			
 			_renderer = new GameRenderer(_board);
-			_renderer.Border = true;
+			_renderer.Border = new Pen(new LinearGradientBrush(new Point(_renderer.Size), new Point(0, 0), Color.DarkGray, Color.FloralWhite));
             _renderer.Score = _score;
+		    _renderer.Background = new LinearGradientBrush(new Point(0,0), new Point(_renderer.Size), Color.DarkGray, Color.FloralWhite );
 			
             _timer.Tick += new EventHandler(_timer_Tick);
             _timer.Interval = _score.InitialInterval;
@@ -40,6 +42,11 @@ namespace Tetris
 			FormBorderStyle = FormBorderStyle.FixedSingle;
 			Text = "Tetris";
 		}
+
+	    public Game(IGameRenderer renderer)
+	    {
+	        _renderer = renderer;
+	    }
 
 		void _timer_Tick(object sender, EventArgs e)
 		{

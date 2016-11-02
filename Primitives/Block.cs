@@ -1,12 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 
 namespace Tetris
 {
-    public struct Block
+    public interface IBlock
+    {
+        Point Position { get; }
+        Brush Brush { get; }
+
+        IBlock Rotate(PointF pivot, int angle);
+        IBlock Offset(Point p);
+    }
+
+    public struct Block : IBlock
     {
         private readonly Brush _brush;
         private readonly Point _position;
@@ -20,12 +26,12 @@ namespace Tetris
             _position = position;
         }
 
-        public Block Offset(Point p)
+        public IBlock Offset(Point p)
         {
             return new Block(Brush, Position.Add(p));
         }
  
-        public Block Rotate(PointF pivot, int angle = 90)
+        public IBlock Rotate(PointF pivot, int angle = 90)
         {
             var rad = angle * Math.PI / 180;
 
@@ -35,14 +41,14 @@ namespace Tetris
             return new Block(Brush, new Point(Convert.ToInt32(x), Convert.ToInt32(y)));
         }
 
-        public bool Equals(Block b)
+        public bool Equals(IBlock b)
         {
             return b.Position.Equals(Position);
         }
 
         public override bool Equals(object obj)
         {
-            return Equals((Block)obj);
+            return Equals((IBlock)obj);
         }
 
         public override int GetHashCode()

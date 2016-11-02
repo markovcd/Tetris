@@ -1,25 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Tetris
 {
-    public class Renderer : IRenderer
+    public class GraphicsRenderer : IGraphicsRenderer
     {
-        private BlockCollection _blocks;
+        private IBlockCollection _blocks;
 
         private int _blockSize;
 
-        public virtual BlockCollection Blocks 
+        public virtual IBlockCollection Blocks 
     	{
     		get { return _blocks; } 
     		set { _blocks = value; }
     	}
         
-        public virtual bool Border { get; set; }
+        public virtual Pen Border { get; set; }
         
         public virtual Brush Background { get; set; }
 
@@ -55,12 +52,11 @@ namespace Tetris
 
         public virtual Point Position { get; set; }
 
-        public Renderer(BlockCollection blocks, int blockSize = 20, Brush background = null)
+        public GraphicsRenderer(IBlockCollection blocks, int blockSize = 20)
         {
 
         	_blocks = blocks;
         	BlockSize = blockSize;
-            Background = background ?? System.Drawing.Brushes.White;
         }
         
     	public virtual void Render()
@@ -72,7 +68,7 @@ namespace Tetris
     		
     		if (_blocks == null) return;
 
-            Graphics.FillRectangle(Background, 0, 0, Size.Width, Size.Height);
+            if (Background != null) Graphics.FillRectangle(Background, 0, 0, Size.Width, Size.Height);
 			Graphics.TranslateTransform(-min.X + center.X, -min.Y + center.Y);
             
             foreach (var b in Blocks)
@@ -82,7 +78,7 @@ namespace Tetris
             
             Graphics.TranslateTransform(min.X - center.X, min.Y - center.Y);
             
-            if (Border) Graphics.DrawRectangle(Pens.Black, 0, 0, Size.Width - 1, Size.Height - 1);
+            if (Border != null) Graphics.DrawRectangle(Border, 0, 0, Size.Width - 1, Size.Height - 1);
             
             Graphics.TranslateTransform(-Position.X , -Position.Y);
         }

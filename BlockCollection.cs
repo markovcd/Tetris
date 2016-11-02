@@ -6,18 +6,23 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public abstract class BlockCollection : IEnumerable<Block>
+    public interface IBlockCollection : IEnumerable<IBlock>
     {
-        private readonly Dictionary<Point, Block> _blocks;
+        Size Size { get; }
+    }
+
+    public abstract class BlockCollection : IBlockCollection
+    {
+        private readonly Dictionary<Point, IBlock> _blocks;
 
         public abstract Size Size { get; }
 		
-        public virtual Block? this[Point p] 
+        public virtual IBlock this[Point p] 
         {
         	get
         	{
-        		Block b;
-            	return _blocks.TryGetValue(p, out b) ? b : (Block?)null;
+        		IBlock b;
+            	return _blocks.TryGetValue(p, out b) ? b : null;
         	}
         }
         
@@ -26,13 +31,13 @@ namespace Tetris
         	_blocks.Clear();
         }
 
-        protected void AddBlock(Block b)
+        protected void AddBlock(IBlock b)
         {
             if (_blocks.ContainsKey(b.Position)) _blocks[b.Position] = b;
             else _blocks.Add(b.Position, b);
         }
 
-        protected void AddBlocks(IEnumerable<Block> blocks)
+        protected void AddBlocks(IEnumerable<IBlock> blocks)
         {
             foreach (var b in blocks) AddBlock(b);
         }
@@ -42,22 +47,22 @@ namespace Tetris
             return _blocks.Remove(p);
         }
         
-        protected void RemoveBlocks(IEnumerable<Block> blocks)
+        protected void RemoveBlocks(IEnumerable<IBlock> blocks)
         {
         	foreach (var b in blocks) RemoveBlock(b.Position);
         }
 
         protected BlockCollection()
         {
-            _blocks = new Dictionary<Point, Block>();
+            _blocks = new Dictionary<Point, IBlock>();
         }
 
-        protected BlockCollection(IEnumerable<Block> blocks)
+        protected BlockCollection(IEnumerable<IBlock> blocks)
         {
-            _blocks = new Dictionary<Point, Block>(blocks.ToDictionary(b => b.Position));
+            _blocks = new Dictionary<Point, IBlock>(blocks.ToDictionary(b => b.Position));
         }
 
-        public virtual IEnumerator<Block> GetEnumerator()
+        public virtual IEnumerator<IBlock> GetEnumerator()
         {
             return _blocks.Values.GetEnumerator();
         }

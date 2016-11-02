@@ -3,9 +3,9 @@ using System.Drawing;
 
 namespace Tetris
 {
-	public class GameRenderer : BoardRenderer
-	{
-		private readonly PieceRenderer _pieceRenderer;
+	public class GameRenderer : BoardRenderer, IGameRenderer
+    {
+		private readonly IPieceRenderer _pieceRenderer;
 		
 		public override Point Position {
 			get { return base.Position; }
@@ -35,7 +35,7 @@ namespace Tetris
 			}
 		}
 		
-		public override bool Border 
+		public override Pen Border 
 		{
 			get { return base.Border; }
 			set 
@@ -44,8 +44,18 @@ namespace Tetris
 				_pieceRenderer.Border = value;				
 			}
 		}
-		
-		public new Size Size 
+
+	    public override Brush Background
+	    {
+	        get { return base.Background; }
+	        set
+	        {
+	            base.Background = value;
+	            _pieceRenderer.Background = value;
+	        }
+	    }
+
+	    public new Size Size 
 		{
 			get 
 			{ 
@@ -61,7 +71,7 @@ namespace Tetris
 		public Size BoardSize { get { return base.Size; } }
 		public Size PieceSize { get { return _pieceRenderer.Size; } }
 		
-		public Score Score { get; set; }
+		public IScore Score { get; set; }
 		public Point ScorePosition 
 		{
 			get
@@ -70,7 +80,7 @@ namespace Tetris
 			}
 		}
 		
-		public GameRenderer(Board board, int blockSize = 20) : base(board, blockSize) 
+		public GameRenderer(IBoard board, int blockSize = 20) : base(board, blockSize) 
 		{
 			_pieceRenderer = new PieceRenderer(board.NextPiece, blockSize);
 			Position = default(Point);
@@ -84,7 +94,7 @@ namespace Tetris
 			
 			if (Score == null) return;
 			
-			Graphics.DrawString(Score.ToString(), SystemFonts.CaptionFont, System.Drawing.Brushes.Black, ScorePosition.X, ScorePosition.Y);
+			Graphics.DrawString(Score.ToString(), SystemFonts.CaptionFont, Brushes.Black, ScorePosition.X, ScorePosition.Y);
 		}
 
 	}

@@ -62,7 +62,7 @@
     <Compile Include="Primitives\Piece.cs" />
     <Compile Include="Primitives\Score.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Renderers\Renderer.cs" />
+    <Compile Include="Renderers\GraphicsRenderer.cs" />
     <Compile Include="Renderers\BoardRenderer.cs" />
     <Compile Include="Renderers\GameRenderer.cs" />
     <Compile Include="Renderers\IRenderer.cs" />

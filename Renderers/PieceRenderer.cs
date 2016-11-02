@@ -4,11 +4,11 @@ using System.Drawing;
 
 namespace Tetris
 {
-	public class PieceRenderer : Renderer
+	public class PieceRenderer : GraphicsRenderer, IPieceRenderer
     {
-        public Piece Piece
+        public IPiece Piece
         {
-            get { return (Piece)Blocks; }
+            get { return (IPiece)Blocks; }
             set { Blocks = value; }
         }
         
@@ -17,6 +17,6 @@ namespace Tetris
         	get { return new Size(BlockSize * 4, BlockSize * 4); }
 		}
 
-        public PieceRenderer(Piece piece, int blockSize = 20) : base(piece, blockSize) { }
+        public PieceRenderer(IPiece piece, int blockSize = 20) : base(piece, blockSize) { }
     }
 }

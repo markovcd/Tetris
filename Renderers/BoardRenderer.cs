@@ -3,12 +3,11 @@ using System.Drawing;
 
 namespace Tetris
 {
-	
-	public class BoardRenderer : Renderer
+	public class BoardRenderer : GraphicsRenderer, IBoardRenderer
     {	
-		public Board Board
+		public IBoard Board
         {
-            get { return (Board)Blocks; }
+            get { return (IBoard)Blocks; }
             set { Blocks = value; }
         }
 		
@@ -27,7 +26,7 @@ namespace Tetris
 			return default(Point);
 		}
 		
-        public BoardRenderer(Board board, int blockSize = 20) : base(board, blockSize) { }
+        public BoardRenderer(IBoard board, int blockSize = 20) : base(board, blockSize) { }
        
     }
 }

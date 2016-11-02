@@ -2,8 +2,19 @@
 
 namespace Tetris
 {
-		public class Score
-	{
+    public interface IScore
+    {
+        int InitialInterval { get; }
+        int TimerInterval { get; }
+
+        event EventHandler NewLevel;
+
+        void AddLines(int lines);
+        void Clear();
+    }
+
+    public class Score : IScore
+    {
 		private readonly int _linesPerLevel, _intervalDecreasePerLevel, _initialInterval;
 		private readonly int[] _scoreMultiplier;
 		private int _totalLines, _level, _timerInterval, _value;
