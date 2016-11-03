@@ -6,16 +6,14 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public interface IBlocks : IEnumerable<IBlock>
+    public interface IBlocks : IList<IBlock>
     {
         Size Size { get; }
         Point Position { get; }
     }
 
-    public abstract class Blocks : IBlocks
+    public abstract class Blocks : List<IBlock>, IBlocks
     {
-        private readonly IDictionary<Point, IBlock> _blocks;
-
         public virtual Size Size
 	    {
 	        get
@@ -35,50 +33,18 @@ namespace Tetris
             }
         }
 
-        protected void ClearBlocks()
+        public void Add(IEnumerable<IBlock> blocks)
         {
-        	_blocks.Clear();
+            foreach (var b in blocks) Add(b);
         }
 
-        protected void AddBlock(IBlock b)
+        public void Remove(IEnumerable<IBlock> blocks)
         {
-            if (_blocks.ContainsKey(b.Position)) _blocks[b.Position] = b;
-            else _blocks.Add(b.Position, b);
+            foreach (var b in blocks) Remove(b);
         }
 
-        protected void AddBlocks(IEnumerable<IBlock> blocks)
-        {
-            foreach (var b in blocks) AddBlock(b);
-        }
+        protected Blocks(IEnumerable<IBlock> b) : base(b) { }
+        protected Blocks() { }
 
-        protected bool RemoveBlock(Point p)
-        {
-            return _blocks.Remove(p);
-        }
-        
-        protected void RemoveBlocks(IEnumerable<IBlock> blocks)
-        {
-        	foreach (var b in blocks) RemoveBlock(b.Position);
-        }
-
-        protected Blocks()
-        {
-            _blocks = new Dictionary<Point, IBlock>();
-        }
-
-        protected Blocks(IEnumerable<IBlock> blocks)
-        {
-            _blocks = new Dictionary<Point, IBlock>(blocks.ToDictionary(b => b.Position));
-        }
-
-        public virtual IEnumerator<IBlock> GetEnumerator()
-        {
-            return _blocks.Values.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
 }

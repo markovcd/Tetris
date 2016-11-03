@@ -14,7 +14,6 @@ namespace Tetris
 
 	    void Tick();
 	    bool MovePiece(int direction);
-	    void Clear();
 	    bool RotatePiece(int angle);
     }
 
@@ -46,8 +45,8 @@ namespace Tetris
 			get { return _currentPiece; }
 			private set
 			{
-				if (_currentPiece != null) RemoveBlocks(_currentPiece);
-				if (value != null) AddBlocks(value);
+				if (_currentPiece != null) Remove(_currentPiece);
+				if (value != null) Add(value);
 				_currentPiece = value;                                   
 			}
 		}
@@ -59,10 +58,10 @@ namespace Tetris
             _currentPiece = null;
 		}
 		
-		public void Clear()
+		public new void Clear()
 		{
 			ClearPiece();
-			ClearBlocks();
+			base.Clear();
 			_nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
 		}
 		
@@ -133,10 +132,10 @@ namespace Tetris
 
             if (IsFullRow(rowIndex, out currentRow))
             {
-                RemoveBlocks(currentRow);
+                Remove(currentRow);
                 var offsetBlocks = this.Where(b => b.Position.Y < rowIndex).ToList();
-                RemoveBlocks(offsetBlocks);
-                AddBlocks(offsetBlocks.Select(b => b.Offset(new Point(0, 1))));
+                Remove(offsetBlocks);
+                Add(offsetBlocks.Select(b => b.Offset(new Point(0, 1))));
 
                 rows++;
             }
