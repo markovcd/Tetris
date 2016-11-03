@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
@@ -74,13 +75,19 @@ namespace Tetris
         	_blocks = blocks;
         	BlockSize = blockSize;
         }
+
+	    private void RenderBlocks(IEnumerable<IBlock> blocks)
+	    {
+            foreach (var b in blocks)
+            {
+                if (b is IPiece) RenderBlocks(b as IPiece);
+                else Graphics.FillRectangle(b.Brush, b.Position.X * BlockSize, b.Position.Y * BlockSize, BlockSize, BlockSize);
+            }
+        }
         
         protected virtual void RenderBlocks()
         {
-        	foreach (var b in Blocks)
-            {
-                Graphics.FillRectangle(b.Brush, b.Position.X * BlockSize, b.Position.Y * BlockSize, BlockSize, BlockSize);
-            }
+            RenderBlocks(Blocks);
         }
         
         protected virtual void RenderBackground()

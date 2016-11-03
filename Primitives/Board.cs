@@ -45,8 +45,8 @@ namespace Tetris
 			get { return _currentPiece; }
 			private set
 			{
-				if (_currentPiece != null) Remove(_currentPiece);
-				if (value != null) Add(value);
+				if (_currentPiece != null) Remove((IBlock)_currentPiece);
+				if (value != null) Add((IBlock)value);
 				_currentPiece = value;                                   
 			}
 		}
@@ -55,6 +55,10 @@ namespace Tetris
 		
 		protected void ClearPiece()
 		{
+		    if (_currentPiece == null) return;
+
+            Remove((IBlock) _currentPiece);
+            Add(_currentPiece);
             _currentPiece = null;
 		}
 		
@@ -99,12 +103,10 @@ namespace Tetris
 		
 		protected bool IsCollision(IPiece piece)
 		{
-			if (CurrentPiece == null) return this.Intersect(piece).Any();
-			
-			return this.Except(CurrentPiece).Intersect(piece).Any();
+		    return this.Except(new[] {CurrentPiece}).Intersect(piece).Any();
 		}
-		
-		protected bool IsCollision(Point offset, int angle)
+
+	    protected bool IsCollision(Point offset, int angle)
         {
 			if (offset.X == 0 && offset.Y == 0) offset = _gravity;
 			
