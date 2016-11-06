@@ -3,16 +3,36 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public interface IBlock
+    public interface IBlock  
     {
         Point Position { get; }
         Brush Brush { get; }
 
-        IBlock Rotate(PointF pivot, int angle);
         IBlock Offset(Point p);
     }
 
-    public class Block : IBlock
+    public interface ITetrisBlock : IBlock
+    {
+        ITetrisBlock Rotate(PointF pivot, int angle);
+        new ITetrisBlock Offset(Point p);
+    }
+
+    public class TetrisBlock : Block, ITetrisBlock
+    {
+        public ITetrisBlock Rotate(PointF pivot, int angle)
+        {
+            return new TetrisBlock(Brush, Position.Rotate(pivot, angle));
+        }
+
+        public new ITetrisBlock Offset(Point p)
+        {
+            return new TetrisBlock(Brush, Position.Add(p));
+        }
+
+        public TetrisBlock(Brush brush, Point position) : base(brush, position) { }
+    }
+
+    public class Block : IBlock, IEquatable<IBlock>, ICloneable
     {
         private readonly Brush _brush;
         private readonly Point _position;
@@ -31,14 +51,9 @@ namespace Tetris
             return new Block(Brush, Position.Add(p));
         }
  
-        public IBlock Rotate(PointF pivot, int angle)
-        {
-            return new Block(Brush, Position.Rotate(pivot, angle));
-        }
-
         public bool Equals(IBlock b)
         {
-            return b.Position.Equals(Position);
+            return b != null && b.Position.Equals(Position);
         }
 
         public override bool Equals(object obj)
@@ -50,5 +65,17 @@ namespace Tetris
         {
             return Position.GetHashCode();
         }
+
+        public IBlock Clone()
+        {
+            return new Block((Brush)Brush.Clone(), Position);
+        }
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
+
+        
     }
 }

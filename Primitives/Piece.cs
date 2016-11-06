@@ -6,22 +6,22 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public interface IPiece : IBlocks, IBlock
+    public interface IPiece : IBlocks<ITetrisBlock>, ITetrisBlock
     {
         new IPiece Offset(Point p);
         IPiece Rotate(int angle);
     }
 
-    public class Piece : Blocks, IPiece, IEquatable<IPiece>
+    public class Piece : Blocks<ITetrisBlock>, IPiece, IEquatable<IPiece>, ICloneable
 	{
 	    private readonly Brush _brush;
         private readonly PointF _pivot;
 
 		public Brush Brush { get { return _brush; } }
-		
-		public PointF Pivot { get { return _pivot; } }
+        
+        public PointF Pivot { get { return _pivot; } }
 
-		public Piece(PointF pivot, Brush brush, IEnumerable<IBlock> blocks) : base(blocks)
+		public Piece(PointF pivot, Brush brush, IEnumerable<ITetrisBlock> blocks) : base(blocks)
 		{
 			_pivot = pivot;
 			_brush = brush;
@@ -29,28 +29,38 @@ namespace Tetris
 		
 		public IPiece Rotate(int angle)
 		{
-            return new Piece(Pivot, Brush, this.Select(b => b.Rotate(Pivot, angle)));
+		    return (IPiece)Rotate(Pivot, angle);
 		}
 
-        public IBlock Rotate(PointF pivot, int angle)
+        public ITetrisBlock Rotate(PointF pivot, int angle)
         {
             return new Piece(pivot, Brush, this.Select(b => b.Rotate(pivot, angle)));
         }
 
-        IBlock IBlock.Offset(Point p)
+        ITetrisBlock ITetrisBlock.Offset(Point p)
         {
             return Offset(p);
         }
 
+        IBlock IBlock.Offset(Point p)
+        {
+            return ((ITetrisBlock) this).Offset(p);
+        }
+
         public IPiece Offset(Point p)
 	    {
-	        return new Piece(Pivot.Add(p) , Brush, this.Select(b => b.Offset(p)));
-	    }
+            return new Piece(Pivot.Add(p), Brush, this.Select(b => b.Offset(p)));
+        }
 
 	    public IPiece Clone()
 		{
 			return new Piece(Pivot, Brush, this);
 		}
+
+        object ICloneable.Clone()
+        {
+            return Clone();
+        }
 		
 	    public override int GetHashCode()
 	    {
@@ -62,16 +72,17 @@ namespace Tetris
 
 	    public bool Equals(IPiece other)
 	    {
-	        return GetHashCode().Equals(other.GetHashCode());
+	        return other != null && GetHashCode().Equals(other.GetHashCode());
 	    }
 
-	    public override bool Equals(object obj)
+        public bool Equals(IBlock other)
+        {
+            return Equals((IPiece) other);
+        }
+
+        public override bool Equals(object obj)
 	    {
 	        return Equals((IPiece)obj);
 	    }
 	}
-	
- 
-	
-	
 }

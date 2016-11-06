@@ -26,7 +26,7 @@ namespace Tetris
 			_board = renderer.Board;
 			_score = renderer.Score;
 
-            _board.LinesCleared += delegate(object sender, LinesEventArgs args) { _score.AddLines(args.Lines); };
+            _board.LinesCleared += delegate(object sender, LinesEventArgs args) { _score.Add(args.Lines); };
             _board.GameEnd += delegate { New(); };
 			_score.NewLevel += delegate { _timer.Interval = _score.TimerInterval; };
 			
@@ -83,7 +83,7 @@ namespace Tetris
 		
 		public void MovePiece(Direction direction)
 		{
-			_board.MovePiece((int)direction);
+			_board.MovePiece(new Point((int)direction, 0));
 		}
 		
 		public void RotatePiece(Direction direction)

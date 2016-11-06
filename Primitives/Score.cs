@@ -9,7 +9,7 @@ namespace Tetris
 
         event EventHandler NewLevel;
 
-        void AddLines(int lines);
+        void Add(int score);
         void Clear();
     }
 
@@ -52,13 +52,13 @@ namespace Tetris
 		public int TimerInterval { get { return _timerInterval; } }
 		public int Value { get { return _value; } }
 
-		public void AddLines(int lines)
+		public void Add(int score)
 		{
-		   TotalLines += lines;
+		   TotalLines += score;
 	
-		    if (lines == 0) return;
+		    if (score == 0) return;
 		    
-            _value += (_level + 1) * _scoreMultiplier[lines - 1];
+            _value += (_level + 1) * _scoreMultiplier[score - 1];
         }
 
 		public void Clear()
@@ -87,7 +87,7 @@ namespace Tetris
 		
 		public override string ToString()
 		{
-			return string.Format("Total lines: {0}\nLevel: {1}\nScore: {2}", _totalLines, _level, _value);
+			return string.Format("Total score: {0}\nLevel: {1}\nScore: {2}", _totalLines, _level, _value);
 		}
 
 	}

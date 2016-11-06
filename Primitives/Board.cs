@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace Tetris
 {
-	public interface IBoard : IBlocks
+	public interface IBoard : IBlocks<IBlock>
     {
         event EventHandler<LinesEventArgs> LinesCleared;
         event EventHandler PieceCreated;
@@ -13,7 +13,8 @@ namespace Tetris
 	    IPiece NextPiece { get; }
 
 	    void Tick();
-	    bool MovePiece(int direction);
+	    void Clear();
+	    bool MovePiece(Point direction);
 	    bool RotatePiece(int angle);
     }
 
@@ -25,7 +26,7 @@ namespace Tetris
         public LinesEventArgs(int lines) { _lines = lines; }
     }
 	
-	public class Board : Blocks, IBoard
+	public class Board : Blocks<IBlock>, IBoard
 	{
 	    private readonly AbstractPieceFactory _factory;
         private readonly Size _size;
@@ -45,8 +46,8 @@ namespace Tetris
 			get { return _currentPiece; }
 			private set
 			{
-				if (_currentPiece != null) Remove((IBlock)_currentPiece);
-				if (value != null) Add((IBlock)value);
+				if (_currentPiece != null) Remove(_currentPiece);
+				if (value != null) Add(value);
 				_currentPiece = value;                                   
 			}
 		}
@@ -57,8 +58,8 @@ namespace Tetris
 		{
 		    if (_currentPiece == null) return;
 
-            Remove((IBlock) _currentPiece);
-            Add(_currentPiece);
+            Remove(_currentPiece);
+            AddRange(_currentPiece);
             _currentPiece = null;
 		}
 		
@@ -66,7 +67,7 @@ namespace Tetris
 		{
 			ClearPiece();
 			base.Clear();
-			_nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
+			_nextPiece = _factory.GetRandomPiece();
 		}
 		
 		protected bool NewPiece()
@@ -76,19 +77,19 @@ namespace Tetris
 			if (IsCollision(piece)) return false;
 			
 			CurrentPiece = piece;
-			_nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
+			_nextPiece = _factory.GetRandomPiece();
 			
 			return true;
 		}
 		
-		public bool MovePiece(int direction)
+		public bool MovePiece(Point direction)
 		{
 			if (CurrentPiece == null) return false;
-			
-			var p = direction == 0 ? _gravity : new Point(direction, 0);
-			
-			if (IsCollision(p, angle:0) || IsEdge(p, angle:0)) return false;
-			CurrentPiece = CurrentPiece.Offset(p);
+
+		    var piece = CurrentPiece.Offset(direction);
+
+			if (IsCollision(piece) || IsEdge(piece)) return false;
+			CurrentPiece = piece;
 
 		    return true;
 		}
@@ -96,48 +97,41 @@ namespace Tetris
 		public bool RotatePiece(int angle)
         {
         	if (CurrentPiece == null) return false;
-        	if (IsCollision(Point.Empty, angle) || IsEdge(Point.Empty, angle)) return false;
-        	CurrentPiece = CurrentPiece.Rotate(angle);
-        	return true;
+
+        	var piece = CurrentPiece.Rotate(angle);
+		    if (IsCollision(piece) || IsEdge(piece)) return false;
+		    CurrentPiece = piece;
+		    return true;
         }
 		
 		protected bool IsCollision(IPiece piece)
 		{
-		    return this.Except(new[] {CurrentPiece}).Intersect(piece).Any();
+            return this.Except(new [] { CurrentPiece }).Intersect(piece).Any();
 		}
 
-	    protected bool IsCollision(Point offset, int angle)
-        {
-			if (offset.X == 0 && offset.Y == 0) offset = _gravity;
-			
-			return IsCollision(CurrentPiece.Offset(offset).Rotate(angle));
-        }
-        
-        protected bool IsEdge(Point p, int angle)
-        {
-        	if (p.X == 0 && p.Y == 0) p = _gravity;
-        	
-        	return CurrentPiece.Offset(p).Rotate(angle).Any(b => !b.Position.IsIn(Size));
+	    protected bool IsEdge(IPiece piece)
+	    {
+            return piece.Any(b => !b.Position.IsIn(Size));
         }
 
-	    protected bool IsFullRow(int rowIndex, out IList<IBlock> row)
+        protected bool IsFullRow(int rowIndex, out IList<IBlock> row)
 	    {
 	        row = this.Where(b => b.Position.Y.Equals(rowIndex)).ToList();
 
             return row.Count.Equals(Size.Width);
 	    }
         
-        protected int RemoveFullRows(int rowIndex)
+        protected int RemoveFullRows(int rowIndex = 0)
         {
             var rows = 0;
             IList<IBlock> currentRow;
 
             if (IsFullRow(rowIndex, out currentRow))
             {
-                Remove(currentRow);
+                RemoveRange(currentRow);
                 var offsetBlocks = this.Where(b => b.Position.Y < rowIndex).ToList();
-                Remove(offsetBlocks);
-                Add(offsetBlocks.Select(b => b.Offset(new Point(0, 1))));
+                RemoveRange(offsetBlocks);
+                AddRange(offsetBlocks.Select(b => b.Offset(new Point(0, 1))));
 
                 rows++;
             }
@@ -155,10 +149,10 @@ namespace Tetris
 				if (NewPiece()) OnPieceCreated(new EventArgs());
 				else OnGameEnd(new EventArgs());
             }
-			else if (!MovePiece(direction:0))
+			else if (!MovePiece(_gravity))
             {
                 ClearPiece();
-                var cleared = RemoveFullRows(rowIndex:0);
+                var cleared = RemoveFullRows();
                 if (cleared > 0) OnLinesCleared(new LinesEventArgs(cleared));
             }
         }
@@ -169,7 +163,7 @@ namespace Tetris
 			_size = size; 
             StartingPosition = startingPosition;
             _gravity = new Point(0, 1);
-            _nextPiece = _factory.GetRandomPiece(randomAngle:true, offset:Point.Empty);
+            _nextPiece = _factory.GetRandomPiece();
         }
 		
 		protected virtual void OnLinesCleared(LinesEventArgs e)

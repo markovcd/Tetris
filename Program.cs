@@ -13,5 +13,22 @@ namespace Tetris
             Application.Run(GameFactory.GetGame());
         }
 
+        private static void Test()
+        {
+            IHeader<IItem> h = new Header<ItemA>();
+        }
+
     }
+
+    interface IHeader<out T> where T : IItem { }
+    interface IHeader2<out T> : IHeader<T> where T : IItem { }
+
+    class Header<T> : IHeader<T> where T : IItem { }
+
+
+    interface IItem { }
+    class ItemA : IItem { }
+    class ItemB : IItem { }
+
+
 }

@@ -7,7 +7,7 @@ namespace Tetris
 {
     public interface IRenderer
     {
-    	IBlocks Blocks { get; }
+    	IBlocks<IBlock> Blocks { get; }
     	void Render();
     }
 	
@@ -23,11 +23,11 @@ namespace Tetris
 	
 	public class GraphicsRenderer : IGraphicsRenderer
     {
-        private IBlocks _blocks;
+        private IBlocks<IBlock> _blocks;
 
         private int _blockSize;
 
-        public virtual IBlocks Blocks 
+        public virtual IBlocks<IBlock> Blocks 
     	{
     		get { return _blocks; } 
     		set { _blocks = value; }
@@ -69,7 +69,7 @@ namespace Tetris
 
         public virtual Point Position { get; set; }
 
-        public GraphicsRenderer(IBlocks blocks, int blockSize)
+        public GraphicsRenderer(IBlocks<IBlock> blocks, int blockSize)
         {
 
         	_blocks = blocks;

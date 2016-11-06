@@ -8,7 +8,7 @@ namespace Tetris
 	{
 		public static Game GetGame()
 		{
-			var pieceFactory = new PieceFactory(new BlockFactory());
+			var pieceFactory = new PieceFactory(new TetrisBlockFactory());
 			var score = new Score(10, 1000, 100, Score.DefaultScoreMultiplier());
 			var board = new Board(pieceFactory, new Size(10, 22), new Point(4, 1));
 			var renderer = new GameRenderer(board, score, 20);

@@ -32,6 +32,6 @@ namespace Tetris
 		}
 		
         public BoardRenderer(IBoard board, int blockSize) : base(board, blockSize) { }
-       
+        public BoardRenderer(IBlocks<IBlock> blocks, int blockSize) : base(blocks, blockSize) { }
     }
 }

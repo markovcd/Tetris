@@ -4,11 +4,11 @@ using System.Collections.Generic;
 
 namespace Tetris
 {
-	public abstract class AbstractBlockFactory
+	public abstract class AbstractBlockFactory<TBlock> where TBlock : IBlock
     {
-        public abstract IBlock GetBlock(Brush brush, Point position);
+        public abstract TBlock GetBlock(Brush brush, Point position);
         
-        public virtual IEnumerable<IBlock> GetBlocks(int width, PointF pivot, Brush brush, string data)
+        public virtual IEnumerable<TBlock> GetBlocks(int width, PointF pivot, Brush brush, string data)
         {
         	int x = 0, y = 0;
 			
@@ -26,11 +26,20 @@ namespace Tetris
         }         
     }
     
-	public class BlockFactory : AbstractBlockFactory
+	public class BlockFactory : AbstractBlockFactory<IBlock>
 	{		
 		public override IBlock GetBlock(Brush brush, Point position)
 		{
 			return new Block(brush, position);
 		}
 	}
+
+    public class TetrisBlockFactory : AbstractBlockFactory<ITetrisBlock>
+    {
+        public override ITetrisBlock GetBlock(Brush brush, Point position)
+        {
+            return new TetrisBlock(brush, position);
+        }
+    }
+
 }

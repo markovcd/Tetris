@@ -7,7 +7,7 @@ namespace Tetris
 {
     public abstract class AbstractPieceFactory
     {
-    	private readonly AbstractBlockFactory _factory;
+    	private readonly AbstractBlockFactory<ITetrisBlock> _factory;
     	
     	public virtual IEnumerable<IPiece> Pieces { get; set; }
     	
@@ -19,21 +19,21 @@ namespace Tetris
 			return angles.ElementAt(Random.Next(0, 4));
 		}
     	
-    	public virtual IPiece GetRandomPiece(bool randomAngle, Point offset)
+    	public virtual IPiece GetRandomPiece()
     	{
     		var p = Pieces.ElementAt(Random.Next(0, Pieces.Count()));
-			
-			return randomAngle ? p.Rotate(RandomAngle()).Offset(offset) : p.Offset(offset);
+
+    	    return p.Rotate(RandomAngle());
     	}
     	
-    	public abstract IPiece GetPiece(PointF pivot, Brush brush, IEnumerable<IBlock> blocks);
+    	public abstract IPiece GetPiece(PointF pivot, Brush brush, IEnumerable<ITetrisBlock> blocks);
     	
     	public IPiece GetPiece(int width, PointF pivot, Brush brush, string data)
 		{
     		return GetPiece(pivot, brush, _factory.GetBlocks(width, pivot, brush, data));
 		}
     	
-    	public AbstractPieceFactory(AbstractBlockFactory factory)
+    	public AbstractPieceFactory(AbstractBlockFactory<ITetrisBlock> factory)
     	{
     		Random = new Random();
     		_factory = factory;
@@ -50,7 +50,7 @@ namespace Tetris
 		public readonly IPiece SPiece;
 		public readonly IPiece ZPiece;
 		
-		public PieceFactory(AbstractBlockFactory factory) : base(factory)
+		public PieceFactory(AbstractBlockFactory<ITetrisBlock> factory) : base(factory)
 		{
 			LPiece = GetPiece(2, new PointF(0.0f, 1.0f), Brushes.Gold, "101011");
 			JPiece = GetPiece(2, new PointF(1.0f, 1.0f), Brushes.OrangeRed, "010111");
@@ -66,7 +66,7 @@ namespace Tetris
 			};
 		}
 		
-		public override IPiece GetPiece(PointF pivot, Brush brush, IEnumerable<IBlock> blocks)
+		public override IPiece GetPiece(PointF pivot, Brush brush, IEnumerable<ITetrisBlock> blocks)
 		{
 			return new Piece(pivot, brush, blocks);
 		}

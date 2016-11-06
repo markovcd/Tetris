@@ -6,13 +6,13 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public interface IBlocks : IList<IBlock>
+    public interface IBlocks<out TBlock> : IEnumerable<TBlock> where TBlock : IBlock
     {
         Size Size { get; }
         Point Position { get; }
     }
 
-    public abstract class Blocks : List<IBlock>, IBlocks
+    public abstract class Blocks<TBlock> : List<TBlock>, IBlocks<TBlock> where TBlock : IBlock
     {
         public virtual Size Size
 	    {
@@ -32,19 +32,13 @@ namespace Tetris
                 return new Point(this.Min(b => b.Position.X), this.Min(b => b.Position.Y));
             }
         }
-
-        public void Add(IEnumerable<IBlock> blocks)
-        {
-            foreach (var b in blocks) Add(b);
-        }
-
-        public void Remove(IEnumerable<IBlock> blocks)
+       
+        public void RemoveRange(IEnumerable<TBlock> blocks)
         {
             foreach (var b in blocks) Remove(b);
         }
 
-        protected Blocks(IEnumerable<IBlock> b) : base(b) { }
+        protected Blocks(IEnumerable<TBlock> b) : base(b) { }
         protected Blocks() { }
-
     }
 }
